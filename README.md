@@ -5,7 +5,6 @@ requests, verified technicians accept and complete jobs, admins verify
 technicians and oversee the platform.
 
 ## What's built
-
 **Backend** — `backend/` — NestJS + Prisma + SQLite, JWT auth
 - Roles: `CUSTOMER`, `TECHNICIAN`, `ADMIN`
 - Service categories (seeded from the 10 categories in the investor overview)
