@@ -81,7 +81,6 @@ code. If you're re-downloading this after hitting that error, this
 version has it fixed.
 
 ## Notes on this build
-
 - SQLite is used for portability during development. For production, change
   `datasource db { provider = "sqlite" }` to `"postgresql"` in
   `backend/prisma/schema.prisma`, set `DATABASE_URL` accordingly, and re-run
