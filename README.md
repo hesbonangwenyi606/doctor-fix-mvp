@@ -36,7 +36,6 @@ technicians and oversee the platform.
   routing/ETA API for production dispatch.
 
 ## Setup
-
 ### 1. Backend
 
 ```bash
