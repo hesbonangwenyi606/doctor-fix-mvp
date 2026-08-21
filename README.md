@@ -23,7 +23,6 @@ technicians and oversee the platform.
 - Admin dashboard: stats, verify technicians, all-requests overview
 
 ## Deliberately stubbed (needs real infrastructure/API keys)
-
 - **Payments** — `Payment` records are created with status `PENDING`; the
   customer dashboard has a "Mark as paid" button standing in for a real
   gateway webhook. Wire in M-Pesa Daraja or Stripe by replacing
