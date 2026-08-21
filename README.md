@@ -72,7 +72,6 @@ NEXT_PUBLIC_API_BASE=http://your-api-host:3001
 4. As the customer, mark the job as paid and leave a review.
 
 ## Fixed since first version
-
 The first version of this schema used Prisma native `enum` types
 (`Role`, `RequestUrgency`, etc.), which **SQLite does not support** —
 `prisma migrate dev` would fail with `P1012`. Role/status/urgency fields
