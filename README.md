@@ -48,7 +48,6 @@ npm run start:dev   # http://localhost:3001
 ```
 
 ### 2. Frontend
-
 ```bash
 cd frontend
 npm install
