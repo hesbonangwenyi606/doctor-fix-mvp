@@ -1,5 +1,4 @@
 # Doctor Fix — MVP Platform
-
 A working end-to-end MVP of the Doctor Fix repair/breakdown/maintenance
 marketplace described in the investor overview: customers submit repair
 requests, verified technicians accept and complete jobs, admins verify
