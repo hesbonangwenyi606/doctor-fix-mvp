@@ -1,0 +1,126 @@
+// Doctor Fix — core data model
+// SQLite for MVP portability. Note: SQLite has no native enum support in
+// Prisma, so role/status/urgency fields are String columns constrained by
+// the shared TS const-enums in src/common/enums.ts instead of Prisma enums.
+// Swap provider to "postgresql" for production and you can reintroduce
+// native `enum` blocks there if you prefer.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  phone         String?  @unique
+  passwordHash  String
+  fullName      String
+  role          String   // CUSTOMER | TECHNICIAN | ADMIN — see src/common/enums.ts
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Present only when role = TECHNICIAN
+  technicianProfile TechnicianProfile?
+
+  // Requests the user has raised as a customer
+  requests      ServiceRequest[] @relation("CustomerRequests")
+  reviewsGiven  Review[]         @relation("ReviewAuthor")
+}
+
+model TechnicianProfile {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id])
+  bio          String?
+  verified     Boolean  @default(false) // set true by admin after checks
+  latitude     Float?
+  longitude    Float?
+  locationName String?
+  categories   TechnicianCategory[]
+  bookings     Booking[]
+  reviews      Review[] @relation("ReviewedTechnician")
+  ratingAvg    Float    @default(0)
+  ratingCount  Int      @default(0)
+  createdAt    DateTime @default(now())
+}
+
+model ServiceCategory {
+  id          String   @id @default(cuid())
+  name        String   @unique // e.g. "Plumbing", "Vehicle Breakdown"
+  description String?
+  requests    ServiceRequest[]
+  technicians TechnicianCategory[]
+}
+
+// join table: a technician can serve multiple categories
+model TechnicianCategory {
+  technicianId String
+  technician   TechnicianProfile @relation(fields: [technicianId], references: [id])
+  categoryId   String
+  category     ServiceCategory   @relation(fields: [categoryId], references: [id])
+
+  @@id([technicianId, categoryId])
+}
+
+model ServiceRequest {
+  id           String          @id @default(cuid())
+  customerId   String
+  customer     User            @relation("CustomerRequests", fields: [customerId], references: [id])
+  categoryId   String
+  category     ServiceCategory @relation(fields: [categoryId], references: [id])
+  description  String
+  urgency      String          @default("EMERGENCY") // EMERGENCY | SCHEDULED
+  scheduledFor DateTime? // only used when urgency = SCHEDULED
+  latitude     Float?
+  longitude    Float?
+  locationName String?
+  status       String          @default("OPEN") // OPEN | MATCHED | IN_PROGRESS | COMPLETED | CANCELLED
+  booking      Booking?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+}
+
+model Booking {
+  id               String         @id @default(cuid())
+  serviceRequestId String         @unique
+  serviceRequest   ServiceRequest @relation(fields: [serviceRequestId], references: [id])
+  technicianId     String
+  technician       TechnicianProfile @relation(fields: [technicianId], references: [id])
+  status           String         @default("MATCHED") // MATCHED | IN_PROGRESS | COMPLETED
+  acceptedAt       DateTime       @default(now())
+  startedAt        DateTime?
+  completedAt      DateTime?
+  payment          Payment?
+  review           Review?
+}
+
+// Payment is stubbed: no real gateway integration. `provider` and
+// `providerRef` are the seam where M-Pesa/Stripe/etc would plug in.
+model Payment {
+  id         String        @id @default(cuid())
+  bookingId  String        @unique
+  booking    Booking       @relation(fields: [bookingId], references: [id])
+  amount     Float
+  status     String        @default("PENDING") // PENDING | PAID | FAILED
+  provider   String        @default("STUB")
+  providerRef String?
+  createdAt  DateTime      @default(now())
+}
+
+model Review {
+  id           String            @id @default(cuid())
+  bookingId    String            @unique
+  booking      Booking           @relation(fields: [bookingId], references: [id])
+  authorId     String
+  author       User              @relation("ReviewAuthor", fields: [authorId], references: [id])
+  technicianId String
+  technician   TechnicianProfile @relation("ReviewedTechnician", fields: [technicianId], references: [id])
+  rating       Int // 1-5
+  comment      String?
+  createdAt    DateTime          @default(now())
+}
