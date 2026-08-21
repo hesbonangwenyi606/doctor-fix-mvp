@@ -62,7 +62,6 @@ NEXT_PUBLIC_API_BASE=http://your-api-host:3001
 ```
 
 ### 3. Try it out
-
 1. Visit `http://localhost:3000`, register as a **technician**, set your
    categories and location, then log in as admin
    (`admin@dofix.local` / `ChangeMe123!`) and click **Verify** next to your
